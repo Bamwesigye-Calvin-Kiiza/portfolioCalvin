@@ -1,0 +1,372 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="{{ profile.bio|truncatewords:20|default:'Calvin Kiiza Bamwesigye - Business Intelligence Analyst, ML Engineer & Data Scientist.' }}">
+    <meta name="keywords"
+        content="Data Science, Machine Learning, AI, Business Intelligence, Python, SQL, Deep Learning">
+    <meta name="author" content="{{ profile.name|default:'Calvin Kiiza Bamwesigye' }}">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{ profile.name }} - Portfolio">
+    <meta property="og:description" content="{{ profile.title }}">
+    <meta property="og:type" content="website">
+
+    <title>{{ profile.name|default:'Calvin Kiiza Bamwesigye' }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#home" class="nav-logo">Calvin.dev</a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <span class="theme-icon-light">☀️</span>
+                    <span class="theme-icon-dark" style="display: none;">🌙</span>
+                </button>
+                <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">About & Education</a></li>
+                <li><a href="#awards" class="nav-link">Awards</a></li>
+                <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero section" id="home">
+        <div class="container">
+            {% if profile %}
+            <div class="hero-content">
+                <p class="hero-greeting">👋 Hello, I'm</p>
+                <h1 class="hero-title">
+                    {{ profile.name }}
+                </h1>
+                <p class="hero-subtitle">
+                    {{ profile.bio }}
+                </p>
+                <div class="hero-cta">
+                    <a href="#projects" class="btn btn-primary">
+                        <span>View My Work</span>
+                        <span>→</span>
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <span>Get In Touch</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Fallback content if no profile exists -->
+            <div class="hero-content">
+                <p class="hero-greeting">👋 Hello, I'm</p>
+                <h1 class="hero-title">
+                    Calvin Kiiza <span class="gradient-text">Bamwesigye</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Business Intelligence Analyst & ML Engineer passionate about transforming data into actionable
+                    insights and building AI-powered solutions
+                </p>
+                <div class="hero-cta">
+                    <a href="#projects" class="btn btn-primary">
+                        <span>View My Work</span>
+                        <span>→</span>
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <span>Get In Touch</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>About Me & Education</h2>
+            </div>
+
+            <!-- Education -->
+            <div class="card fade-in-up stagger-1" style="max-width: 900px; margin: 0 auto;">
+                <h3>🎓 Education</h3>
+                <div class="timeline">
+                    {% for edu in education %}
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">{{ edu.start_date }} – {{ edu.end_date }}</div>
+                            <h4 class="timeline-title">{{ edu.degree }}</h4>
+                            <p class="timeline-subtitle">{{ edu.institution }}</p>
+                            {% if edu.description %}
+                            <p class="timeline-text">{{ edu.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No education details added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Awards Section -->
+    <section class="section" id="awards">
+        <div class="container">
+            <div class="section-title">
+                <h2>Awards & Recognition</h2>
+            </div>
+
+            <div class="card fade-in-up stagger-2" style="max-width: 900px; margin: 0 auto;">
+                <ul style="list-style: none; padding: 0;">
+                    {% for award in awards %}
+                    <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
+                        <span style="position: absolute; left: 0;">{{ award.icon }}</span>
+                        <strong>{{ award.title }}</strong>
+                        {% if award.organization %} ({{ award.organization }}){% endif %}
+                        {% if award.date %} - {{ award.date }}{% endif %}
+                    </li>
+                    {% empty %}
+                    <p>No awards added yet.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="section" id="experience">
+        <div class="container">
+            <div class="section-title">
+                <h2>Work Experience</h2>
+            </div>
+            <div class="timeline">
+                {% for job in experience %}
+                <div class="timeline-item reveal modal-trigger" data-title="{{ job.position }} @ {{ job.company }}"
+                    data-description="{{ job.description|safe }}" data-icon="💼">
+                    <div class="timeline-content">
+                        <div class="timeline-date">{{ job.start_date }} – {{ job.end_date }}</div>
+                        <h3 class="timeline-title">{{ job.position }}</h3>
+                        <p class="timeline-subtitle">{{ job.company }}</p>
+                        <div style="color: var(--color-text-secondary); margin-top: 1rem;">
+                            {{ job.description|safe|truncatewords_html:15 }}
+                        </div>
+                        <button class="btn-text" style="margin-top: 1rem; font-size: 0.9rem;">Read more</button>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No work experience added yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section" id="projects">
+        <div class="container">
+            <div class="section-title">
+                <h2>Featured Projects</h2>
+            </div>
+            <div class="grid grid-2">
+                {% for project in projects %}
+                <div class="project-card reveal modal-trigger" data-title="{{ project.title }}"
+                    data-description="{{ project.description }}" data-icon="{{ project.image_icon }}"
+                    data-image="{% if project.image %}{{ project.image.url }}{% endif %}"
+                    data-tech="{{ project.technologies }}" data-link="{{ project.link }}"
+                    data-link-text="{{ project.link_text }}">
+                    {% if project.image %}
+                    <div class="project-image"
+                        style="background-image: url('{{ project.image.url }}'); background-size: cover; background-position: center;">
+                    </div>
+                    {% else %}
+                    <div class="project-image">{{ project.image_icon }}</div>
+                    {% endif %}
+                    <div class="project-content">
+                        <h3 class="project-title">{{ project.title }}</h3>
+                        <p class="project-description">
+                            {{ project.description|truncatewords:20 }}
+                        </p>
+                        <div class="project-tech">
+                            {% for tech in project.get_tech_list|slice:":3" %}
+                            <span class="badge">{{ tech }}</span>
+                            {% endfor %}
+                            {% if project.get_tech_list|length > 3 %}
+                            <span class="badge">+{{ project.get_tech_list|length|add:"-3" }}</span>
+                            {% endif %}
+                        </div>
+                        <button class="btn-text">View Details →</button>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No projects added yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Publications -->
+            {% if publications %}
+            <div class="section-title" style="margin-top: 4rem;">
+                <h2>Publications</h2>
+            </div>
+            {% for pub in publications %}
+            <div class="card reveal" style="max-width: 900px; margin: 0 auto; margin-bottom: 2rem;">
+                <h4 style="color: var(--color-accent-primary); margin-bottom: 1rem;">
+                    📄 {{ pub.title }}
+                </h4>
+                <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
+                    <strong>Authors:</strong> {{ pub.authors }}
+                </p>
+                <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+                    <strong>Published in:</strong> {{ pub.journal }}, {{ pub.date }}
+                </p>
+                {% if pub.link %}
+                <div style="margin-top: 1rem;">
+                    <a href="{{ pub.link }}" target="_blank" style="color: var(--color-accent-primary);">View
+                        Publication →</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="section" id="skills">
+        <div class="container">
+            <div class="section-title">
+                <h2>Skills & Technologies</h2>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-category reveal">
+                    <h3>💻 Technologies</h3>
+                    <div class="skill-list">
+                        {% for skill in tech_skills %}
+                        <span class="badge">{{ skill.name }}</span>
+                        {% empty %}
+                        <span>No technology skills added.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="skill-category reveal">
+                    <h3>🌍 Languages</h3>
+                    <div class="skill-list">
+                        {% for skill in lang_skills %}
+                        <span class="badge">{{ skill.name }}</span>
+                        {% empty %}
+                        <span>No language skills added.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Get In Touch</h2>
+                <p style="color: var(--color-text-secondary); max-width: 600px; margin: 1rem auto 0;">
+                    I'm always open to discussing new opportunities, collaborations, or just connecting with fellow tech
+                    enthusiasts!
+                </p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-item reveal">
+                    <div class="contact-icon">📧</div>
+                    <h4>Email</h4>
+                    <a href="mailto:{% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}"
+                        style="color: var(--color-text-secondary);">
+                        {% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}
+                    </a>
+                </div>
+
+                <div class="contact-item reveal">
+                    <div class="contact-icon">📱</div>
+                    <h4>Phone</h4>
+                    <a href="tel:{% if profile %}{{ profile.phone }}{% else %}+256762496588{% endif %}"
+                        style="color: var(--color-text-secondary);">
+                        {% if profile %}{{ profile.phone }}{% else %}+256 762 496 588{% endif %}
+                    </a>
+                </div>
+
+                <div class="contact-item reveal">
+                    <div class="contact-icon">🌐</div>
+                    <h4>Location</h4>
+                    <p style="color: var(--color-text-secondary);">{% if profile %}{{ profile.address }}{% else
+                        %}Uganda{% endif %}</p>
+                </div>
+            </div>
+
+            <div class="social-links">
+                {% if profile.linkedin_link %}
+                <a href="{{ profile.linkedin_link }}" target="_blank" class="social-link" aria-label="LinkedIn">
+                    <span>💼</span>
+                </a>
+                {% endif %}
+                {% if profile.github_link %}
+                <a href="{{ profile.github_link }}" target="_blank" class="social-link" aria-label="GitHub">
+                    <span>💻</span>
+                </a>
+                {% endif %}
+                {% if not profile %}
+                <a href="#" class="social-link" aria-label="LinkedIn"><span>💼</span></a>
+                <a href="#" class="social-link" aria-label="GitHub"><span>💻</span></a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; {% now "Y" %} {{ profile.name|default:'Calvin Kiiza Bamwesigye' }}. All rights reserved.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem;">Built with passion for innovation and excellence</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Structure -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <div id="modalIcon" class="modal-icon"></div>
+                <h2 id="modalTitle"></h2>
+            </div>
+            <div class="modal-body">
+                <p id="modalDescription"></p>
+                <div id="modalTech" class="modal-tech-stack"></div>
+                <div id="modalLinks" class="project-links"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>
