@@ -299,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconMoon = document.querySelector('.theme-icon-dark');
     const htmlElement = document.documentElement;
 
-    // Check for saved theme preference, default to dark
-    const storedTheme = localStorage.getItem('theme') || 'dark';
+    // Check for saved theme preference, default to light
+    const storedTheme = localStorage.getItem('theme') || 'light';
 
     // Apply theme on load
     if (storedTheme === 'light') {
