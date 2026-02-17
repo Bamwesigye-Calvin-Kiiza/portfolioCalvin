@@ -1,59 +1,61 @@
-// ============================================
-// NAVIGATION FUNCTIONALITY
-// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Get elements
+    const navbar = document.getElementById('navbar');
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+    const navLinks = document.querySelectorAll('.nav-link');
 
-// Get elements
-const navbar = document.getElementById('navbar');
-const navToggle = document.getElementById('navToggle');
-const navMenu = document.getElementById('navMenu');
-const navLinks = document.querySelectorAll('.nav-link');
+    if (navToggle && navMenu) {
+        // Mobile menu toggle
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
 
-// Mobile menu toggle
-navToggle.addEventListener('click', () => {
-    navToggle.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
-
-// Close mobile menu when clicking on a link
-navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
-        navMenu.classList.remove('active');
-    });
-});
-
-// Navbar scroll effect
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-
-    if (currentScroll > 100) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+        // Close mobile menu when clicking on a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
     }
 
-    lastScroll = currentScroll;
-});
+    // Navbar scroll effect
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
 
-// ============================================
-// SMOOTH SCROLLING
-// ============================================
-
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-
-        if (target) {
-            const navbarHeight = navbar.offsetHeight;
-            const targetPosition = target.offsetTop - navbarHeight;
-
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
+        if (navbar) {
+            if (currentScroll > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
         }
+
+        lastScroll = currentScroll;
+    });
+
+    // ============================================
+    // SMOOTH SCROLLING
+    // ============================================
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+
+            if (target && navbar) {
+                const navbarHeight = navbar.offsetHeight;
+                const targetPosition = target.offsetTop - navbarHeight;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
     });
 });
 
@@ -289,46 +291,51 @@ if ('performance' in window) {
 }
 
 // ============================================
-// THEME TOGGLE FUNCTIONALITY
+// THEME TOGGLE FUNCTIONALITY (Optimized)
 // ============================================
+
+(function () {
+    const htmlElement = document.documentElement;
+    const storedTheme = localStorage.getItem('theme') || 'light';
+    if (storedTheme === 'light') {
+        htmlElement.setAttribute('data-theme', 'light');
+    } else {
+        htmlElement.removeAttribute('data-theme');
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('themeToggle');
-    // Select icons directly using data attributes or classes
     const iconSun = document.querySelector('.theme-icon-light');
     const iconMoon = document.querySelector('.theme-icon-dark');
     const htmlElement = document.documentElement;
 
-    // Check for saved theme preference, default to light
-    const storedTheme = localStorage.getItem('theme') || 'light';
-
-    // Apply theme on load
-    if (storedTheme === 'light') {
-        htmlElement.setAttribute('data-theme', 'light');
-        if (iconSun) iconSun.style.display = 'none';
-        if (iconMoon) iconMoon.style.display = 'block';
-    } else {
-        htmlElement.removeAttribute('data-theme');
-        if (iconSun) iconSun.style.display = 'block'; // Show Sun (switch to light)
-        if (iconMoon) iconMoon.style.display = 'none';
+    function updateIcons(theme) {
+        if (theme === 'light') {
+            if (iconSun) iconSun.style.display = 'none';
+            if (iconMoon) iconMoon.style.display = 'block';
+        } else {
+            if (iconSun) iconSun.style.display = 'block';
+            if (iconMoon) iconMoon.style.display = 'none';
+        }
     }
 
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = htmlElement.getAttribute('data-theme');
+    // Apply icons on load
+    const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+    updateIcons(currentTheme);
 
+    if (themeToggle) {
+        themeToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const currentTheme = htmlElement.getAttribute('data-theme');
             if (currentTheme === 'light') {
-                // Switch to Dark
                 htmlElement.removeAttribute('data-theme');
                 localStorage.setItem('theme', 'dark');
-                if (iconSun) iconSun.style.display = 'block';
-                if (iconMoon) iconMoon.style.display = 'none';
+                updateIcons('dark');
             } else {
-                // Switch to Light
                 htmlElement.setAttribute('data-theme', 'light');
                 localStorage.setItem('theme', 'light');
-                if (iconSun) iconSun.style.display = 'none';
-                if (iconMoon) iconMoon.style.display = 'block';
+                updateIcons('light');
             }
         });
     }
