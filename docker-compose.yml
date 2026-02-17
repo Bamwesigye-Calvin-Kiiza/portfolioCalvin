@@ -12,7 +12,7 @@ services:
       - "8001:8000" # Map Host 8001 to Container 8000 (Avoids conflict with existing 8000)
     environment:
       - DEBUG=False
-      - SECRET_KEY=django-insecure-production-key-change-me
+      - SECRET_KEY=change-this-to-a-secure-random-string-on-your-server
       - ALLOWED_HOSTS=173.208.162.233,localhost,127.0.0.1,calvinportfolio.com
     restart: always
 
