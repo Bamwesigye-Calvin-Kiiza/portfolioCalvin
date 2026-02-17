@@ -38,7 +38,7 @@ class WorkExperience(models.Model):
     order = models.IntegerField(default=0)
     
     class Meta:
-        ordering = ['-order']
+        ordering = ['order']
         
     def __str__(self):
         return f"{self.position} at {self.company}"
@@ -97,6 +97,7 @@ class Publication(models.Model):
     journal = models.CharField(max_length=200)
     date = models.CharField(max_length=50)
     link = models.URLField(blank=True)
+    paper = models.FileField(upload_to='publications/', blank=True, null=True, help_text="Upload the publication paper (PDF)")
     
     def __str__(self):
         return self.title

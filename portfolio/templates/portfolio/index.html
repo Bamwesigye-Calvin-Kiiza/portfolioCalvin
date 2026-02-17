@@ -15,6 +15,17 @@
     <meta property="og:title" content="{{ profile.name }} - Portfolio">
     <meta property="og:description" content="{{ profile.title }}">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="http://173.208.162.233/">
+    <meta property="og:image" content="{% static 'images/portfolio-preview.png' %}">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="173.208.162.233">
+    <meta property="twitter:url" content="http://173.208.162.233/">
+    <meta name="twitter:title" content="{{ profile.name|default:'Calvin Kiiza Bamwesigye' }} - Portfolio">
+    <meta name="twitter:description"
+        content="{{ profile.title|default:'Business Intelligence Analyst & ML Engineer' }}">
+    <meta name="twitter:image" content="{% static 'images/portfolio-preview.png' %}">
 
     <title>{{ profile.name|default:'Calvin Kiiza Bamwesigye' }}</title>
 
@@ -22,11 +33,99 @@
     <link rel="icon" type="image/svg+xml"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'></text></svg>">
 
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=2.1">
+    <style>
+        /* INLINE COMPELLED STYLES FOR PUBLICATIONS & AWARDS */
+        .publications-grid,
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .publication-card,
+        .award-card {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .publication-card:hover,
+        .award-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-accent-primary);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .pub-icon,
+        .award-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .award-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            /* Removed gradient as it messes up emojis */
+        }
+
+        .pub-title,
+        .award-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+            line-height: 1.4;
+        }
+
+        .pub-title {
+            color: var(--color-accent-primary);
+        }
+
+        .pub-meta,
+        .award-org {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .award-date {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--color-accent-primary);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: auto;
+            align-self: flex-start;
+        }
+
+        .pub-authors {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .pub-actions {
+            margin-top: auto;
+        }
+    </style>
 </head>
 
 <body>
+    <canvas id="bg-canvas"></canvas>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
@@ -138,19 +237,21 @@
                 <h2>Awards & Recognition</h2>
             </div>
 
-            <div class="card fade-in-up stagger-2" style="max-width: 900px; margin: 0 auto;">
-                <ul style="list-style: none; padding: 0;">
-                    {% for award in awards %}
-                    <li style="margin-bottom: 1rem; padding-left: 1.5rem; position: relative;">
-                        <span style="position: absolute; left: 0;">{{ award.icon }}</span>
-                        <strong>{{ award.title }}</strong>
-                        {% if award.organization %} ({{ award.organization }}){% endif %}
-                        {% if award.date %} - {{ award.date }}{% endif %}
-                    </li>
-                    {% empty %}
-                    <p>No awards added yet.</p>
-                    {% endfor %}
-                </ul>
+            <div class="awards-grid">
+                {% for award in awards %}
+                <div class="award-card reveal stagger-1">
+                    <div class="award-icon">{{ award.icon }}</div>
+                    <div class="award-content">
+                        <h3 class="award-title">{{ award.title }}</h3>
+                        <span class="award-org">{% if award.organization %}{{ award.organization }}{% endif %}</span>
+                    </div>
+                    {% if award.date %}
+                    <span class="award-date">{{ award.date }}</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p>No awards added yet.</p>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -228,25 +329,33 @@
             <div class="section-title" style="margin-top: 4rem;">
                 <h2>Publications</h2>
             </div>
-            {% for pub in publications %}
-            <div class="card reveal" style="max-width: 900px; margin: 0 auto; margin-bottom: 2rem;">
-                <h4 style="color: var(--color-accent-primary); margin-bottom: 1rem;">
-                    📄 {{ pub.title }}
-                </h4>
-                <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
-                    <strong>Authors:</strong> {{ pub.authors }}
-                </p>
-                <p style="color: var(--color-text-muted); font-size: 0.9rem;">
-                    <strong>Published in:</strong> {{ pub.journal }}, {{ pub.date }}
-                </p>
-                {% if pub.link %}
-                <div style="margin-top: 1rem;">
-                    <a href="{{ pub.link }}" target="_blank" style="color: var(--color-accent-primary);">View
-                        Publication →</a>
+            <div class="publications-grid">
+                {% for pub in publications %}
+                <div class="publication-card reveal stagger-1">
+                    <div class="pub-icon">📄</div>
+                    <h3 class="pub-title">{{ pub.title }}</h3>
+                    <div class="pub-meta">
+                        <span>📅 {{ pub.date }}</span>
+                        <span>•</span>
+                        <span>{{ pub.journal }}</span>
+                    </div>
+                    <p class="pub-authors">
+                        <strong>Authors:</strong> {{ pub.authors|truncatechars:100 }}
+                    </p>
+                    <div class="pub-actions">
+                        {% if pub.paper %}
+                        <a href="{{ pub.paper.url }}" target="_blank" class="btn btn-sm btn-primary">
+                            View Paper 📄
+                        </a>
+                        {% elif pub.link %}
+                        <a href="{{ pub.link }}" target="_blank" class="btn-text">
+                            Read Online →
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
-                {% endif %}
+                {% endfor %}
             </div>
-            {% endfor %}
             {% endif %}
         </div>
     </section>
@@ -257,25 +366,37 @@
             <div class="section-title">
                 <h2>Skills & Technologies</h2>
             </div>
-            <div class="skills-grid">
-                <div class="skill-category reveal">
-                    <h3>💻 Technologies</h3>
-                    <div class="skill-list">
+            <div class="skills-grid-new">
+                <div class="skill-category-card reveal stagger-1">
+                    <div class="category-header">
+                        <span class="category-icon">💻</span>
+                        <h3>Technologies</h3>
+                    </div>
+                    <div class="skill-badges">
                         {% for skill in tech_skills %}
-                        <span class="badge">{{ skill.name }}</span>
+                        <div class="skill-badge-item">
+                            <span class="skill-dot"></span>
+                            <span class="skill-name">{{ skill.name }}</span>
+                        </div>
                         {% empty %}
-                        <span>No technology skills added.</span>
+                        <p class="text-muted">No technology skills added.</p>
                         {% endfor %}
                     </div>
                 </div>
 
-                <div class="skill-category reveal">
-                    <h3>🌍 Languages</h3>
-                    <div class="skill-list">
+                <div class="skill-category-card reveal stagger-2">
+                    <div class="category-header">
+                        <span class="category-icon">🌍</span>
+                        <h3>Languages</h3>
+                    </div>
+                    <div class="skill-badges">
                         {% for skill in lang_skills %}
-                        <span class="badge">{{ skill.name }}</span>
+                        <div class="skill-badge-item">
+                            <span class="skill-dot"></span>
+                            <span class="skill-name">{{ skill.name }}</span>
+                        </div>
                         {% empty %}
-                        <span>No language skills added.</span>
+                        <p class="text-muted">No language skills added.</p>
                         {% endfor %}
                     </div>
                 </div>
@@ -293,30 +414,107 @@
                     enthusiasts!
                 </p>
             </div>
-            <div class="contact-grid">
-                <div class="contact-item reveal">
-                    <div class="contact-icon">📧</div>
-                    <h4>Email</h4>
-                    <a href="mailto:{% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}"
-                        style="color: var(--color-text-secondary);">
-                        {% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}
-                    </a>
+            <!-- Success Message -->
+            {% if messages %}
+            <div class="container" style="margin-bottom: 2rem;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="contact-split-grid">
+                <!-- Contact Info Column -->
+                <div class="contact-info-column reveal stagger-1">
+                    <div class="contact-info-card">
+                        <div class="info-icon">📧</div>
+                        <div class="info-content">
+                            <span class="info-label">Email Me</span>
+                            <a href="mailto:{% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}"
+                                class="info-value">
+                                {% if profile %}{{ profile.email }}{% else %}bamwesigyecalvinkiiza@gmail.com{% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="info-icon">📱</div>
+                        <div class="info-content">
+                            <span class="info-label">Call Me</span>
+                            <a href="tel:{% if profile %}{{ profile.phone }}{% else %}+256762496588{% endif %}"
+                                class="info-value">
+                                {% if profile %}{{ profile.phone }}{% else %}+256 762 496 588{% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-info-card">
+                        <div class="info-icon">🌐</div>
+                        <div class="info-content">
+                            <span class="info-label">Location</span>
+                            <a href="https://www.google.com/maps/search/?api=1&query={% if profile %}{{ profile.address|urlencode }}{% else %}Uganda{% endif %}"
+                                target="_blank" class="info-value">
+                                {% if profile %}{{ profile.address }}{% else %}Uganda{% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="social-connect" style="margin-top: 2rem;">
+                        <h4 style="margin-bottom: 1rem;">Connect with me</h4>
+                        <div class="social-icons-row">
+                            {% if profile.linkedin_link %}
+                            <a href="{{ profile.linkedin_link }}" target="_blank" class="social-link" title="LinkedIn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
+                                    </path>
+                                    <rect x="2" y="9" width="4" height="12"></rect>
+                                    <circle cx="4" cy="4" r="2"></circle>
+                                </svg>
+                            </a>
+                            {% endif %}
+                            {% if profile.github_link %}
+                            <a href="{{ profile.github_link }}" target="_blank" class="social-link" title="GitHub">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path
+                                        d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+                                    </path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="contact-item reveal">
-                    <div class="contact-icon">📱</div>
-                    <h4>Phone</h4>
-                    <a href="tel:{% if profile %}{{ profile.phone }}{% else %}+256762496588{% endif %}"
-                        style="color: var(--color-text-secondary);">
-                        {% if profile %}{{ profile.phone }}{% else %}+256 762 496 588{% endif %}
-                    </a>
-                </div>
-
-                <div class="contact-item reveal">
-                    <div class="contact-icon">🌐</div>
-                    <h4>Location</h4>
-                    <p style="color: var(--color-text-secondary);">{% if profile %}{{ profile.address }}{% else
-                        %}Uganda{% endif %}</p>
+                <!-- Contact Form Column -->
+                <div class="contact-form-column reveal stagger-2">
+                    <form method="POST" class="premium-form">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                {{ form.name }}
+                            </div>
+                            <div class="form-group">
+                                {{ form.email }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {{ form.subject }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.message }}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <span>Send Message</span>
+                            <span>🚀</span>
+                        </button>
+                    </form>
                 </div>
             </div>
 

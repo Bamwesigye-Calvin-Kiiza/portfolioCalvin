@@ -442,3 +442,202 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ============================================
+// PARTICLE NETWORK BACKGROUND
+// ============================================
+
+const canvas = document.getElementById('bg-canvas');
+if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let particlesArray;
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initParticles();
+    });
+
+    // Mouse position
+    const mouse = {
+        x: null,
+        y: null,
+        radius: 150 // Interaction radius
+    };
+
+    window.addEventListener('mousemove', (event) => {
+        mouse.x = event.x;
+        mouse.y = event.y;
+    });
+
+    // Clear mouse position when leaving window
+    window.addEventListener('mouseout', () => {
+        mouse.x = undefined;
+        mouse.y = undefined;
+    });
+
+
+    // Particle Class
+    class Particle {
+        constructor(x, y, directionX, directionY, size, color) {
+            this.x = x;
+            this.y = y;
+            this.directionX = directionX;
+            this.directionY = directionY;
+            this.size = size;
+            this.color = color;
+            this.baseX = x;
+            this.baseY = y;
+            this.density = (Math.random() * 30) + 1;
+        }
+
+        // Method to draw individual particle
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+
+        // Method to check particle position, check mouse position, move the particle, draw the particle
+        update() {
+            // Check if particle is still within canvas
+            if (this.x > canvas.width || this.x < 0) {
+                this.directionX = -this.directionX;
+            }
+            if (this.y > canvas.height || this.y < 0) {
+                this.directionY = -this.directionY;
+            }
+
+            // Mouse Interaction (Displacement)
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < mouse.radius + this.size) {
+                // Calculate direction away from mouse
+                const forceDirectionX = dx / distance;
+                const forceDirectionY = dy / distance;
+
+                // Max distance, past that the force is 0
+                const maxDistance = mouse.radius;
+
+                // Convert (0...maxDistance) range into (1...0).
+                // Close is stronger.
+                const force = (maxDistance - distance) / maxDistance;
+
+                // DirectionX/Y is random seed, density is mass
+                // Push away
+                const directionX = forceDirectionX * force * this.density;
+                const directionY = forceDirectionY * force * this.density;
+
+                if (mouse.x !== undefined) {
+                    this.x -= directionX;
+                    this.y -= directionY;
+                }
+            } else {
+                // Return to original speed/direction logic if desired,
+                // or just drift. Here we just drift.
+                if (this.x !== this.baseX) {
+                    let dx = this.x - this.baseX;
+                    this.x -= dx / 10; // Return slowly
+                }
+                if (this.y !== this.baseY) {
+                    let dy = this.y - this.baseY;
+                    this.y -= dy / 10;
+                }
+            }
+
+            // Move particle
+            this.x += this.directionX;
+            this.y += this.directionY;
+
+            // Draw particle
+            this.draw();
+        }
+    }
+
+    // Create particle array
+    function initParticles() {
+        particlesArray = [];
+        // Number of particles based on screen area
+        let numberOfParticles = (canvas.height * canvas.width) / 9000;
+
+        // Adjust for mobile
+        if (window.innerWidth < 768) {
+            numberOfParticles = (canvas.height * canvas.width) / 15000;
+        }
+
+        for (let i = 0; i < numberOfParticles; i++) {
+            let size = (Math.random() * 2) + 1;
+            let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+            let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+            let directionX = (Math.random() * 2) - 1; // Speed
+            let directionY = (Math.random() * 2) - 1;
+
+            // Theme checking for color
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            let color = isLight ? 'rgba(31, 41, 55, 0.5)' : 'rgba(255, 255, 255, 0.5)'; // Dark/Light
+
+            particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        }
+    }
+
+    // Connect particles with lines
+    function connect() {
+        let opacityValue = 1;
+        for (let a = 0; a < particlesArray.length; a++) {
+            for (let b = a; b < particlesArray.length; b++) {
+                let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                    + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+
+                // Threshold for connection
+                if (distance < (canvas.width / 7) * (canvas.height / 7)) {
+                    opacityValue = 1 - (distance / 20000);
+
+                    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+                    let strokeColor = isLight ? `rgba(99, 102, 241, ${opacityValue})` : `rgba(255, 255, 255, ${opacityValue})`;
+
+                    ctx.strokeStyle = strokeColor;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                    ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    // Animation Loop
+    function animate() {
+        requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+        }
+        connect();
+    }
+
+    // Check for theme changes to update particle color
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
+                initParticles(); // Re-init to change colors
+            }
+        });
+    });
+    observer.observe(document.documentElement, {
+        attributes: true //configure it to listen to attribute changes
+    });
+
+
+    initParticles();
+    animate();
+}

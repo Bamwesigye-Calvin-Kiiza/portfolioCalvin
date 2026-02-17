@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: calvin_portfolio_web
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+    ports:
+      - "8001:8000" # Map Host 8001 to Container 8000 (Avoids conflict with existing 8000)
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=django-insecure-production-key-change-me
+      - ALLOWED_HOSTS=173.208.162.233,localhost,127.0.0.1,calvinportfolio.com
+    restart: always
+
+volumes:
+  media_volume:
