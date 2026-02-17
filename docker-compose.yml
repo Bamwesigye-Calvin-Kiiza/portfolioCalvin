@@ -13,7 +13,7 @@ services:
     environment:
       - DEBUG=False
       - SECRET_KEY=change-this-to-a-secure-random-string-on-your-server
-      - ALLOWED_HOSTS=173.208.162.233,localhost,127.0.0.1,calvinportfolio.com
+      - ALLOWED_HOSTS=173.208.162.233,localhost,127.0.0.1,calvinkiizabamwesigye.com,www.calvinkiizabamwesigye.com
     restart: always
 
 volumes:
